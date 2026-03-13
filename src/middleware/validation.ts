@@ -51,11 +51,11 @@ export function validateTodoQuery(query: PaginationQuery): string[] {
   const { page, limit, completed, priority, search } = query;
   const errors: string[] = [];
 
-  if (page && Number.isNaN(parseInt(page))) {
-    errors.push("The page must be an integer");
+  if (page && (Number.isNaN(parseInt(page)) || parseInt(page) <= 0)) {
+    errors.push("The page must be a positive integer and bigger than 0");
   }
-  if (limit && Number.isNaN(parseInt(limit))) {
-    errors.push("The limit must be an integer");
+  if (limit && (Number.isNaN(parseInt(limit)) || parseInt(limit) <= 0)) {
+    errors.push("The limit must be a positive integer and bigger than 0");
   }
   if (completed && completed !== "true" && completed !== "false") {
     errors.push("The completed must be either true or false");

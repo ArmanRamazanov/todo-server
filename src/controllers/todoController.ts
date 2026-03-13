@@ -12,14 +12,24 @@ import { CustomError } from "../utils/error.js";
 
 export function getAll(
   req: Request,
-  res: Response<ApiResponse<Todo[]>>,
+  res: Response<
+    ApiResponse<{
+      todos: Todo[];
+      meta: {
+        totalTodos: number;
+        totalPages?: number;
+        page: number;
+        limit?: number;
+      };
+    }>
+  >,
   next: NextFunction,
 ) {
   try {
     const result = getTodos(req.query);
     return res.json({
       success: true,
-      data: result.todos,
+      data: result,
     });
   } catch (error) {
     next(error);
