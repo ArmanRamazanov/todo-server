@@ -79,7 +79,7 @@ export function validateCreateTodo(input: CreateTodoInput): string[] {
   const { text, priority, completed } = input;
   const errors: string[] = [];
 
-  if (!text || !text.trim().length) {
+  if (text === undefined || !text.trim().length) {
     errors.push("The text is required");
   }
 

@@ -137,10 +137,7 @@ export function del(
       throw new CustomError("Todo was not found", 404, "NotFoundError");
     }
 
-    return res.status(204).json({
-      success: true,
-      data: null,
-    });
+    return res.sendStatus(204);
   } catch (error) {
     next(error);
   }

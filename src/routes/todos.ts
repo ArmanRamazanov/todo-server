@@ -14,21 +14,29 @@ import {
   patch,
   del,
 } from "@/controllers/todoController.js";
-const router = Router();
+const todosRouter = Router();
 
-router.get("/", validateAndHandle({ todoQuery: validateTodoQuery }), getAll);
-router.get("/:id", validateAndHandle({ todoId: validateTodoId }), getById);
-router.post("/", validateAndHandle({ create: validateCreateTodo }), create);
-router.put(
+todosRouter.get(
+  "/",
+  validateAndHandle({ todoQuery: validateTodoQuery }),
+  getAll,
+);
+todosRouter.get("/:id", validateAndHandle({ todoId: validateTodoId }), getById);
+todosRouter.post(
+  "/",
+  validateAndHandle({ create: validateCreateTodo }),
+  create,
+);
+todosRouter.put(
   "/:id",
   validateAndHandle({ todoId: validateTodoId, update: validateUpdateTodo }),
   update,
 );
-router.patch(
+todosRouter.patch(
   "/:id",
   validateAndHandle({ todoId: validateTodoId, update: validateUpdateTodo }),
   patch,
 );
-router.delete("/:id", validateAndHandle({ todoId: validateTodoId }), del);
+todosRouter.delete("/:id", validateAndHandle({ todoId: validateTodoId }), del);
 
-export default router;
+export default todosRouter;

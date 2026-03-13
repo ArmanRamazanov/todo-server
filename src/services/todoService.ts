@@ -24,10 +24,6 @@ export function getTodos(options: PaginationQuery): {
   page = typeof page === "string" ? parseInt(page) : page;
   limit = typeof limit === "string" ? parseInt(limit) : limit;
 
-  console.log(completed);
-  console.log(priority);
-  console.log(search);
-  console.log(options);
   filteredTodos = todos.filter((todo) => {
     const completedMatch = !completed || String(todo.completed) === completed;
     const priorityMatch = !priority || todo.priority === priority;
@@ -39,8 +35,8 @@ export function getTodos(options: PaginationQuery): {
   return {
     todos: filteredTodos.slice((page - 1) * limit, page * limit),
     meta: {
-      totalTodos: todos.length,
-      totalPages: Math.ceil(todos.length / limit),
+      totalTodos: filteredTodos.length,
+      totalPages: Math.ceil(filteredTodos.length / limit),
       page: page,
       limit: limit,
     },
@@ -56,7 +52,7 @@ export function createTodo(input: CreateTodoInput): Todo {
 
   const newTodo = {
     id: nextId++,
-    text: text,
+    text: text.trim(),
     completed: completed ?? false,
     priority: priority ?? "low",
     createdAt: new Date().toISOString(),
@@ -69,12 +65,12 @@ export function createTodo(input: CreateTodoInput): Todo {
 
 export function updateTodo(id: number, input: UpdateTodoInput): Todo | null {
   const todoIndex = todos.findIndex((todo) => todo.id === id);
-  console.log(todoIndex);
   if (todoIndex === -1) return null;
 
   todos[todoIndex] = {
     ...todos[todoIndex]!,
     ...input,
+    text: input.text ? input.text.trim() : todos[todoIndex]!.text,
     id: todos[todoIndex]!.id,
     createdAt: todos[todoIndex]!.createdAt,
     updatedAt: new Date().toISOString(),

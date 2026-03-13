@@ -1,9 +1,8 @@
 import express from "express";
 import type { Request, Response } from "express";
-import { health } from "./controllers/todoController.js";
-import TodosRouter from "./routes/todos.js";
-import notFoundErrorHandler from "./middleware/notFoundRouteHandler.js";
-import { errorHandler } from "./middleware/errorHandler.js";
+import router from "@/routes/index.js";
+import notFoundErrorHandler from "@/middleware/notFoundRouteHandler.js";
+import { errorHandler } from "@/middleware/errorHandler.js";
 import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
@@ -17,7 +16,7 @@ app.use(morgan("dev"));
 app.use(express.json());
 
 //todos routes
-app.use("/api/todos", TodosRouter);
+app.use("/api", router);
 
 //main route
 app.get("/", (req: Request, res: Response) => {
@@ -30,9 +29,6 @@ app.get("/", (req: Request, res: Response) => {
     },
   });
 });
-
-//health route
-app.get("/api/health", health);
 
 //not found URL route
 app.use(notFoundErrorHandler);
