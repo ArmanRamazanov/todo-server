@@ -8,7 +8,7 @@ import {
   deleteTodo,
   getStats,
 } from "@/services/todoService.js";
-import { CustomError } from "../utils/error.js";
+import { CustomError } from "@/utils/error.js";
 
 export function getAll(
   req: Request,
@@ -25,6 +25,7 @@ export function getAll(
   >,
   next: NextFunction,
 ) {
+  console.log(req.query);
   try {
     const result = getTodos(req.query);
     return res.json({

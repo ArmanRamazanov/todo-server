@@ -13,9 +13,11 @@ import {
   update,
   patch,
   del,
+  getStatistics,
 } from "@/controllers/todoController.js";
 const todosRouter = Router();
 
+todosRouter.get("/stats", getStatistics);
 todosRouter.get(
   "/",
   validateAndHandle({ todoQuery: validateTodoQuery }),

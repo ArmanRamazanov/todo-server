@@ -6,6 +6,8 @@ import type {
 
 import type { Request, Response } from "express";
 
+import { isValid } from "@/utils/helperFunctions/validateDate.js";
+
 export function validateAndHandle(validators: {
   create?: (input: any) => string[];
   update?: (input: any) => string[];
@@ -76,11 +78,19 @@ export function validateTodoQuery(query: PaginationQuery): string[] {
 }
 
 export function validateCreateTodo(input: CreateTodoInput): string[] {
-  const { text, priority, completed } = input;
+  const { text, priority, completed, dueDate } = input;
   const errors: string[] = [];
 
   if (text === undefined || !text.trim().length) {
     errors.push("The text is required");
+  }
+
+  if (dueDate) {
+    const dueDateResult = isValid(dueDate);
+
+    if (dueDateResult) {
+      errors.push(dueDateResult);
+    }
   }
 
   if (
@@ -98,12 +108,21 @@ export function validateCreateTodo(input: CreateTodoInput): string[] {
 }
 
 export function validateUpdateTodo(input: UpdateTodoInput): string[] {
-  const { text, priority, completed } = input;
+  const { text, priority, completed, dueDate } = input;
   const errors: string[] = [];
 
   if (text !== undefined && !text.trim().length) {
     errors.push("The text cannot be empty");
   }
+
+  if (dueDate) {
+    const dueDateResult = isValid(dueDate);
+
+    if (dueDateResult) {
+      errors.push(dueDateResult);
+    }
+  }
+
   if (
     priority !== undefined &&
     priority !== "low" &&
@@ -121,7 +140,7 @@ export function validateUpdateTodo(input: UpdateTodoInput): string[] {
 export function validateTodoId(id: number): string[] {
   const errors: string[] = [];
 
-  if (Number.isNaN(Number(id)) === true || Number(id) <= 0) {
+  if (Number.isNaN(Number(id)) || Number(id) <= 0) {
     errors.push("Id must be a positive integer");
   }
 

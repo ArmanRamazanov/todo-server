@@ -12,7 +12,7 @@ const PORT = 3001;
 
 app.use(helmet());
 app.use(cors());
-app.use(morgan("dev"));
+app.use(morgan(":method :url :date[clf]"));
 app.use(express.json());
 
 //todos routes

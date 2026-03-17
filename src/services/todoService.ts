@@ -6,7 +6,10 @@ import type {
   Statistics,
 } from "@/types/todo.types.ts";
 
-let todos: Todo[] = [];
+import { filter } from "@/utils/helperFunctions/filterFunction.js";
+import { sort } from "@/utils/helperFunctions/sortFunction.js";
+import db from "@/data/todos.js";
+
 let nextId = 1;
 
 export function getTodos(options: PaginationQuery): {
@@ -18,22 +21,30 @@ export function getTodos(options: PaginationQuery): {
     limit?: number;
   };
 } {
-  let { page = 1, limit = 10, completed, priority, search } = options;
+  let {
+    page = 1,
+    limit = 10,
+    completed,
+    priority,
+    search,
+    sortBy,
+    sortOrder = "asc",
+  } = options;
   let filteredTodos: Todo[] = [];
+
+  const todos = db.getTodos();
 
   page = typeof page === "string" ? parseInt(page) : page;
   limit = typeof limit === "string" ? parseInt(limit) : limit;
 
-  filteredTodos = todos.filter((todo) => {
-    const completedMatch = !completed || String(todo.completed) === completed;
-    const priorityMatch = !priority || todo.priority === priority;
-    const searchMatch = !search || todo.text.includes(search);
+  filteredTodos = filter({ completed, priority, search }, todos);
 
-    return completedMatch && priorityMatch && searchMatch;
-  });
+  const sortedTodos = sort({ sortBy, sortOrder }, filteredTodos);
 
   return {
-    todos: filteredTodos.slice((page - 1) * limit, page * limit),
+    todos: sortedTodos
+      ? sortedTodos.slice((page - 1) * limit, page * limit)
+      : filteredTodos.slice((page - 1) * limit, page * limit),
     meta: {
       totalTodos: filteredTodos.length,
       totalPages: Math.ceil(filteredTodos.length / limit),
@@ -44,50 +55,56 @@ export function getTodos(options: PaginationQuery): {
 }
 
 export function getTodoById(id: number): Todo | null {
-  return todos.find((todo) => todo.id === id) ?? null;
+  return db.getTodo(id);
 }
 
 export function createTodo(input: CreateTodoInput): Todo {
-  const { text, priority, completed } = input;
+  const { text, priority, completed, dueDate } = input;
 
   const newTodo = {
     id: nextId++,
     text: text.trim(),
     completed: completed ?? false,
     priority: priority ?? "low",
+    ...(dueDate && { dueDate: dueDate }),
     createdAt: new Date().toISOString(),
   };
 
-  todos.push(newTodo);
+  db.addTodo(newTodo);
 
   return newTodo;
 }
 
 export function updateTodo(id: number, input: UpdateTodoInput): Todo | null {
-  const todoIndex = todos.findIndex((todo) => todo.id === id);
+  const todoIndex = db.getIndex(id);
+  const todo = db.getTodo(id);
   if (todoIndex === -1) return null;
 
-  todos[todoIndex] = {
-    ...todos[todoIndex]!,
+  const updatedTodo = {
+    ...todo,
     ...input,
-    text: input.text ? input.text.trim() : todos[todoIndex]!.text,
-    id: todos[todoIndex]!.id,
-    createdAt: todos[todoIndex]!.createdAt,
+    text: input.text ? input.text.trim() : todo!.text,
+    id: todo!.id,
+    createdAt: todo!.createdAt,
     updatedAt: new Date().toISOString(),
   };
-  return todos[todoIndex];
+
+  db.updateTodo(todoIndex, updatedTodo as Todo);
+
+  return updatedTodo as Todo;
 }
 
 export function deleteTodo(id: number): boolean {
-  const todo = todos.find((todo) => todo.id === id);
-
+  const todo = db.getTodo(id);
   if (!todo) return false;
 
-  todos = todos.filter((todo) => todo.id !== id);
+  db.deleteTodo(id);
   return true;
 }
 
 export function getStats(): Statistics {
+  const todos = db.getTodos();
+
   const completed = todos.filter((todo) => todo.completed).length;
   const byPriority = todos.reduce(
     (acc, currentValue) => {

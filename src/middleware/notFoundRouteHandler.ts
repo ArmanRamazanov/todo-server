@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { CustomError } from "../utils/error.js";
+import { CustomError } from "@/utils/error.js";
 export default function notFoundErrorHandler(
   req: Request,
   res: Response,
