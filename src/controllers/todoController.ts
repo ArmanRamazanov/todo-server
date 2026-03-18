@@ -25,7 +25,6 @@ export function getAll(
   >,
   next: NextFunction,
 ) {
-  console.log(req.query);
   try {
     const result = getTodos(req.query);
     return res.json({
@@ -76,38 +75,6 @@ export function create(
 }
 
 export function update(
-  req: Request<{ id: string }>,
-  res: Response<ApiResponse<Todo>>,
-  next: NextFunction,
-) {
-  try {
-    const { id } = req.params;
-    const { text, completed, priority } = req.body;
-
-    if (!text || !text.trim().length || completed === undefined || !priority) {
-      throw new CustomError(
-        "You have not provided all 3 fields",
-        400,
-        "BadRequestError",
-      );
-    }
-
-    const result = updateTodo(parseInt(id), req.body);
-
-    if (!result) {
-      throw new CustomError("Todo was not found", 404, "NotFoundError");
-    }
-
-    return res.json({
-      success: true,
-      data: result,
-    });
-  } catch (error) {
-    next(error);
-  }
-}
-
-export function patch(
   req: Request<{ id: string }>,
   res: Response,
   next: NextFunction,

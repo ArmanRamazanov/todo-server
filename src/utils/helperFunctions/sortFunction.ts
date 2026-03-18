@@ -2,9 +2,6 @@ import type { SortQuery, Todo } from "@/types/todo.types.js";
 
 export function sort(sortOptions: SortQuery, todos: Todo[]) {
   const { sortBy, sortOrder } = sortOptions;
-
-  console.log("sortBy: ", sortBy);
-  console.log("sortOrder: ", sortOrder);
   if (sortBy) {
     if (sortOrder === "asc") {
       return todos.toSorted((a, b) => {

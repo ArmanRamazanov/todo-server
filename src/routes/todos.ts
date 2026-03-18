@@ -11,7 +11,6 @@ import {
   getById,
   create,
   update,
-  patch,
   del,
   getStatistics,
 } from "@/controllers/todoController.js";
@@ -33,11 +32,6 @@ todosRouter.put(
   "/:id",
   validateAndHandle({ todoId: validateTodoId, update: validateUpdateTodo }),
   update,
-);
-todosRouter.patch(
-  "/:id",
-  validateAndHandle({ todoId: validateTodoId, update: validateUpdateTodo }),
-  patch,
 );
 todosRouter.delete("/:id", validateAndHandle({ todoId: validateTodoId }), del);
 

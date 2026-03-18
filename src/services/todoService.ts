@@ -10,7 +10,7 @@ import { filter } from "@/utils/helperFunctions/filterFunction.js";
 import { sort } from "@/utils/helperFunctions/sortFunction.js";
 import db from "@/data/todos.js";
 
-let nextId = 1;
+let nextId = db.getTodos().length;
 
 export function getTodos(options: PaginationQuery): {
   todos: Todo[];
@@ -62,7 +62,7 @@ export function createTodo(input: CreateTodoInput): Todo {
   const { text, priority, completed, dueDate } = input;
 
   const newTodo = {
-    id: nextId++,
+    id: ++nextId,
     text: text.trim(),
     completed: completed ?? false,
     priority: priority ?? "low",
