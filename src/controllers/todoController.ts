@@ -136,15 +136,3 @@ export function getStatistics(
     next(error);
   }
 }
-
-export function health(req: Request, res: Response, next: NextFunction) {
-  try {
-    res.json({
-      status: "healthy",
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-    });
-  } catch (error) {
-    next(error);
-  }
-}

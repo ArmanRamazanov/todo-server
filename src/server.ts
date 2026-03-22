@@ -6,9 +6,24 @@ import { errorHandler } from "@/middleware/errorHandler.js";
 import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
+import "dotenv/config";
+
+import { connectToDb, getDb } from "./data/db.js";
 
 const app = express();
 const PORT = 3001;
+
+//database connection
+let db: any;
+
+connectToDb((err) => {
+  if (!err) {
+    app.listen(PORT, () => {
+      console.log(`The server has started on port: ${PORT}`);
+    });
+    db = getDb();
+  }
+});
 
 app.use(helmet());
 app.use(cors());
@@ -30,12 +45,17 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
+app.get("/api/health", (req: Request, res: Response) => {
+  const dbConnected = db ? true : false;
+
+  res.json({
+    status: dbConnected ? "ok" : "error",
+    db: dbConnected ? "connected" : "disconnected",
+  });
+});
+
 //not found URL route
 app.use(notFoundErrorHandler);
 
 //error handler
 app.use(errorHandler);
-
-app.listen(PORT, () => {
-  console.log(`The server has started on port: ${PORT}`);
-});
