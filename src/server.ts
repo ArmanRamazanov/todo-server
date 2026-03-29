@@ -22,6 +22,8 @@ connectToDb((err) => {
       console.log(`The server has started on port: ${PORT}`);
     });
     db = getDb();
+  } else {
+    console.error("Failed to connect to the database:", err);
   }
 });
 

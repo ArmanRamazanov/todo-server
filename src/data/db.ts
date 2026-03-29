@@ -4,7 +4,8 @@ let dbConnection: Db;
 let retry = 3;
 
 export const connectToDb = (cb: (err: any) => void) => {
-  MongoClient.connect(process.env.MONGO_DB!)
+  console.log("Connecting to:", process.env.MONGO_DB);
+  MongoClient.connect(process.env.MONGO_DB!, { family: 4 })
     .then((client) => {
       dbConnection = client.db();
       cb(null);
