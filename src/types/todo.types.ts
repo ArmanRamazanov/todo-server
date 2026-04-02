@@ -19,38 +19,45 @@ export interface Statistics {
 }
 
 export interface Todo {
-  id: number;
+  _id: string;
   text: string;
   completed: boolean;
   priority: Priority;
-  createdAt: string;
-  dueDate?: string;
-  updatedAt?: string;
+  createdAt: Date;
+  dueDate?: Date;
+  updatedAt?: Date;
 }
 
 export interface PaginationQuery {
   page?: string;
   limit?: string;
-  completed?: string | undefined;
-  priority?: string | undefined;
-  search?: string | undefined;
+  completed?: string;
+  priority?: string;
+  search?: String;
   sortBy?: "dueDate" | "createdAt" | undefined;
   sortOrder?: string;
 }
 
-export type CreateTodoInput = Omit<Todo, "id" | "createdAt" | "updatedAt"> & {
-  completed?: boolean;
+export type CreateTodoInput = Omit<
+  Todo,
+  "_id" | "createdAt" | "updatedAt" | "dueDate"
+> & {
+  dueDate?: string;
 };
 
 export type FilterQuery = Omit<
   PaginationQuery,
-  "sortBy" | "sortOrder" | "page" | "limit"
->;
+  "sortBy" | "sortOrder" | "page" | "limit" | "completed"
+> & {
+  completed?: boolean;
+};
 
 export type SortQuery = Pick<PaginationQuery, "sortBy" | "sortOrder">;
 
 export type UpdateTodoInput = Partial<
-  Omit<Todo, "id" | "createdAt" | "updatedAt">
+  Omit<Todo, "id" | "createdAt" | "updatedAt" | "dueDate"> & {
+    dueDate?: string;
+  }
 >;
 
 export type todoWithDueDate = Omit<Todo, "dueDate"> & { dueDate: string };

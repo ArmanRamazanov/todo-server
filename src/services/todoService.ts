@@ -1,26 +1,24 @@
-import type {
-  Todo,
-  PaginationQuery,
-  CreateTodoInput,
-  UpdateTodoInput,
-  Statistics,
-} from "@/types/todo.types.ts";
+import {
+  type Todo,
+  type PaginationQuery,
+  type CreateTodoInput,
+  type UpdateTodoInput,
+  type Statistics,
+} from "@/types/todo.types.js";
+import db from "@/data/db.js";
+import mongoose from "mongoose";
 
-import { filter } from "@/utils/helperFunctions/filterFunction.js";
-import { sort } from "@/utils/helperFunctions/sortFunction.js";
-import db from "@/data/todos.js";
-
-let nextId = db.getTodos().length;
-
-export function getTodos(options: PaginationQuery): {
+export async function getTodos(options: PaginationQuery): Promise<{
   todos: Todo[];
-  meta: {
-    totalTodos: number;
-    totalPages?: number;
-    page: number;
-    limit?: number;
-  };
-} {
+  meta:
+    | {
+        totalTodos: number;
+        totalPages?: number;
+        page: number;
+        limit?: number;
+      }
+    | { error: string };
+}> {
   let {
     page = 1,
     limit = 10,
@@ -30,80 +28,77 @@ export function getTodos(options: PaginationQuery): {
     sortBy,
     sortOrder = "asc",
   } = options;
-  let filteredTodos: Todo[] = [];
-
-  const todos = db.getTodos();
 
   page = typeof page === "string" ? parseInt(page) : page;
   limit = typeof limit === "string" ? parseInt(limit) : limit;
 
-  filteredTodos = filter({ completed, priority, search }, todos);
+  const filter = {
+    ...(completed !== undefined && { completed: completed === "true" }),
+    ...(priority && { priority }),
+    ...(search && { text: { $regex: search, $options: "i" } }),
+  };
 
-  const sortedTodos = sort({ sortBy, sortOrder }, filteredTodos);
+  const sort = {
+    ...(sortBy && { [sortBy]: sortOrder === "asc" ? 1 : -1 }),
+  } as Record<string, 1 | -1>;
+
+  const todos = await db.getTodos(page, limit, filter, sort);
 
   return {
-    todos: sortedTodos
-      ? sortedTodos.slice((page - 1) * limit, page * limit)
-      : filteredTodos.slice((page - 1) * limit, page * limit),
+    todos,
     meta: {
-      totalTodos: filteredTodos.length,
-      totalPages: Math.ceil(filteredTodos.length / limit),
+      totalTodos: todos.length,
+      totalPages: Math.ceil(todos.length / limit),
       page: page,
       limit: limit,
     },
   };
 }
 
-export function getTodoById(id: number): Todo | null {
-  return db.getTodo(id);
+export async function getTodoById(
+  id: string,
+): Promise<Todo | null | { error: string }> {
+  return await db.getTodo(id);
 }
 
-export function createTodo(input: CreateTodoInput): Todo {
+export async function createTodo(
+  input: CreateTodoInput,
+): Promise<Todo | { error: string }> {
   const { text, priority, completed, dueDate } = input;
 
   const newTodo = {
-    id: ++nextId,
+    _id: new mongoose.Types.ObjectId().toString(),
     text: text.trim(),
     completed: completed ?? false,
     priority: priority ?? "low",
-    ...(dueDate && { dueDate: dueDate }),
-    createdAt: new Date().toISOString(),
+    ...(dueDate && { dueDate: new Date(dueDate) }),
+    createdAt: new Date(),
   };
 
-  db.addTodo(newTodo);
-
-  return newTodo;
+  return await db.addTodo(newTodo as Todo);
 }
 
-export function updateTodo(id: number, input: UpdateTodoInput): Todo | null {
-  const todoIndex = db.getIndex(id);
-  const todo = db.getTodo(id);
-  if (todoIndex === -1) return null;
-
-  const updatedTodo = {
-    ...todo,
-    ...input,
-    text: input.text ? input.text.trim() : todo!.text,
-    id: todo!.id,
-    createdAt: todo!.createdAt,
-    updatedAt: new Date().toISOString(),
-  };
-
-  db.updateTodo(todoIndex, updatedTodo as Todo);
-
-  return updatedTodo as Todo;
+export async function updateTodo(
+  id: string,
+  input: UpdateTodoInput,
+): Promise<Todo | { error: string }> {
+  const todo = await db.updateTodo(id, input);
+  return todo;
 }
 
-export function deleteTodo(id: number): boolean {
-  const todo = db.getTodo(id);
-  if (!todo) return false;
-
-  db.deleteTodo(id);
-  return true;
+export async function deleteTodo(
+  id: string,
+): Promise<boolean | { error: string }> {
+  const result = await db.deleteTodo(id);
+  return result;
 }
 
-export function getStats(): Statistics {
-  const todos = db.getTodos();
+export async function getStats(): Promise<Statistics | { error: string }> {
+  const todos = await db.getAllTodos();
+
+  if ("error" in todos) {
+    return { error: todos.error };
+  }
 
   const completed = todos.filter((todo) => todo.completed).length;
   const byPriority = todos.reduce(

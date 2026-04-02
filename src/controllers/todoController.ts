@@ -10,7 +10,7 @@ import {
 } from "@/services/todoService.js";
 import { CustomError } from "@/utils/error.js";
 
-export function getAll(
+export async function getAll(
   req: Request,
   res: Response<
     ApiResponse<{
@@ -26,27 +26,44 @@ export function getAll(
   next: NextFunction,
 ) {
   try {
-    const result = getTodos(req.query);
+    const result = await getTodos(req.query);
+
+    if ("error" in result) {
+      throw new Error((result as { error: string }).error);
+    }
+
     return res.json({
       success: true,
-      data: result,
+      data: result as {
+        todos: Todo[];
+        meta: {
+          totalTodos: number;
+          totalPages?: number;
+          page: number;
+          limit?: number;
+        };
+      },
     });
   } catch (error) {
     next(error);
   }
 }
 
-export function getById(
+export async function getById(
   req: Request<{ id: string }>,
-  res: Response<ApiResponse<Todo>>,
+  res: Response<ApiResponse<Todo | { error: string }>>,
   next: NextFunction,
 ) {
   try {
     const { id } = req.params;
-    const result = getTodoById(parseInt(id));
+    const result = await getTodoById(id);
 
     if (!result) {
       throw new CustomError("Todo was not found", 404, "NotFoundError");
+    }
+
+    if ("error" in result) {
+      throw new Error((result as { error: string }).error);
     }
 
     return res.json({
@@ -58,13 +75,18 @@ export function getById(
   }
 }
 
-export function create(
+export async function create(
   req: Request,
-  res: Response<ApiResponse<Todo>>,
+  res: Response<ApiResponse<Todo | { error: string }>>,
   next: NextFunction,
 ) {
   try {
-    const result = createTodo(req.body);
+    const result = await createTodo(req.body);
+
+    if ("error" in result) {
+      throw new Error((result as { error: string }).error);
+    }
+
     return res.status(201).json({
       success: true,
       data: result,
@@ -74,7 +96,7 @@ export function create(
   }
 }
 
-export function update(
+export async function update(
   req: Request<{ id: string }>,
   res: Response,
   next: NextFunction,
@@ -86,10 +108,14 @@ export function update(
       throw new CustomError("No fields were provided", 400, "BadRequestError");
     }
 
-    const result = updateTodo(parseInt(id), req.body);
+    const result = await updateTodo(id, req.body);
 
     if (!result) {
       throw new CustomError("Todo was not found", 404, "NotFoundError");
+    }
+
+    if ("error" in result) {
+      throw new Error((result as { error: string }).error);
     }
 
     return res.json({
@@ -101,7 +127,7 @@ export function update(
   }
 }
 
-export function del(
+export async function del(
   req: Request<{ id: string }>,
   res: Response<ApiResponse<null>>,
   next: NextFunction,
@@ -109,10 +135,14 @@ export function del(
   try {
     const { id } = req.params;
 
-    const result = deleteTodo(parseInt(id));
+    const result = await deleteTodo(id);
 
     if (!result) {
       throw new CustomError("Todo was not found", 404, "NotFoundError");
+    }
+
+    if (typeof result === "object" && "error" in result) {
+      throw new Error((result as { error: string }).error);
     }
 
     return res.sendStatus(204);
@@ -121,13 +151,18 @@ export function del(
   }
 }
 
-export function getStatistics(
+export async function getStatistics(
   req: Request,
   res: Response<ApiResponse<Statistics>>,
   next: NextFunction,
 ) {
   try {
-    const result = getStats();
+    const result = await getStats();
+
+    if ("error" in result) {
+      throw new CustomError(result.error, 500, "InternalServerError");
+    }
+
     return res.json({
       success: true,
       data: result,

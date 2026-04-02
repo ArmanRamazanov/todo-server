@@ -8,7 +8,7 @@ import cors from "cors";
 import morgan from "morgan";
 import "dotenv/config";
 
-import { connectToDb, getDb } from "./data/db.js";
+import { connectToDb } from "./data/dbConnection.js";
 
 const app = express();
 const PORT = 3001;
@@ -21,7 +21,6 @@ connectToDb((err) => {
     app.listen(PORT, () => {
       console.log(`The server has started on port: ${PORT}`);
     });
-    db = getDb();
   } else {
     console.error("Failed to connect to the database:", err);
   }

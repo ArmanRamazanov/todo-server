@@ -8,6 +8,8 @@ import type { Request, Response } from "express";
 
 import { isValid } from "@/utils/helperFunctions/validateDate.js";
 
+import mongoose from "mongoose";
+
 export function validateAndHandle(validators: {
   create?: (input: any) => string[];
   update?: (input: any) => string[];
@@ -81,6 +83,11 @@ export function validateCreateTodo(input: CreateTodoInput): string[] {
   const { text, priority, completed, dueDate } = input;
   const errors: string[] = [];
 
+  if (typeof text !== "string") {
+    errors.push("The text must be a string");
+    return errors;
+  }
+
   if (text === undefined || !text.trim().length) {
     errors.push("The text is required");
   }
@@ -137,12 +144,10 @@ export function validateUpdateTodo(input: UpdateTodoInput): string[] {
   return errors;
 }
 
-export function validateTodoId(id: number): string[] {
+export function validateTodoId(id: any): string[] {
   const errors: string[] = [];
-
-  if (Number.isNaN(Number(id)) || Number(id) <= 0) {
-    errors.push("Id must be a positive integer");
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    errors.push("The todo ID is invalid");
   }
-
   return errors;
 }
