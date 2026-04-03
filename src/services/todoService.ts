@@ -42,13 +42,13 @@ export async function getTodos(options: PaginationQuery): Promise<{
     ...(sortBy && { [sortBy]: sortOrder === "asc" ? 1 : -1 }),
   } as Record<string, 1 | -1>;
 
-  const todos = await db.getTodos(page, limit, filter, sort);
+  const { todos, totalFiltered } = await db.getTodos(page, limit, filter, sort);
 
   return {
     todos,
     meta: {
-      totalTodos: todos.length,
-      totalPages: Math.ceil(todos.length / limit),
+      totalTodos: totalFiltered,
+      totalPages: Math.ceil(totalFiltered / limit),
       page: page,
       limit: limit,
     },

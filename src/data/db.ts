@@ -7,16 +7,16 @@ class TodoDatabase {
     limit: number,
     filter: FilterQuery,
     sort: Record<string, 1 | -1>,
-  ): Promise<Todo[]> {
+  ): Promise<{ todos: Todo[]; totalFiltered: number }> {
     try {
+      const totalFiltered = await TodosModel.countDocuments(filter);
       const todos = await TodosModel.find(filter)
         .skip((page - 1) * limit)
         .limit(limit)
         .sort(sort);
 
-      return todos;
+      return { todos, totalFiltered };
     } catch (error) {
-      console.log(error);
       throw new Error("Failed to fetch todos");
     }
   }
