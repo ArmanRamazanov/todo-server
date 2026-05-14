@@ -1,14 +1,16 @@
+import "dotenv/config";
 import express from "express";
 import type { Request, Response } from "express";
-import router from "@/routes/index.js";
-import notFoundErrorHandler from "@/middleware/notFoundRouteHandler.js";
-import { errorHandler } from "@/middleware/errorHandler.js";
+import notFoundErrorHandler from "./todo/middleware/notFoundRouteHandler.js";
+import { errorHandler } from "./errorHandler.js";
 import helmet from "helmet";
 import cors from "cors";
 import morgan from "morgan";
-import "dotenv/config";
 
-import { connectToDb } from "./data/dbConnection.js";
+import router from "./routes/index.js";
+
+import { connectToDb } from "./dbConnection.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = 3001;
@@ -30,8 +32,8 @@ app.use(helmet());
 app.use(cors());
 app.use(morgan(":method :url :date[clf]"));
 app.use(express.json());
+app.use(cookieParser());
 
-//todos routes
 app.use("/api", router);
 
 //main route

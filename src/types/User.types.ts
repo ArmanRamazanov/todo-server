@@ -1,0 +1,51 @@
+import { type PopulatedDoc } from "mongoose";
+import { type Todo } from "./Todo.types.js";
+
+export enum Role {
+  Admin = "admin",
+  User = "user",
+}
+
+export interface User {
+  username: string;
+  password: string;
+  email: string;
+  role: Role;
+  todos: PopulatedDoc<Todo>[];
+  profile: {
+    firstName: string;
+    lastName: string | null;
+    bio: string | null;
+    isActive: boolean;
+  };
+  isVerified: boolean;
+  verificationToken: string | null;
+}
+
+export type userWithoutPassword = Omit<User, "password">;
+
+export type SignupInput = Omit<
+  User,
+  "profile" | "isVerified" | "verificationToken" | "role"
+> & {
+  firstName: string;
+  lastName?: string;
+};
+
+export type LoginInput = Pick<User, "email" | "password" | "username">;
+
+export type UpdateInput = Partial<
+  Omit<
+    User,
+    | "password"
+    | "email"
+    | "role"
+    | "profile"
+    | "isVerified"
+    | "verificationToken"
+  > & {
+    firstName: string;
+    lastName: string;
+    bio: string;
+  }
+>;

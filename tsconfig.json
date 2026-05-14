@@ -37,12 +37,25 @@
     "esModuleInterop": true,
     "paths": {
       "@/types/*": ["./src/types/*"],
-      "@/controllers/*": ["./src/controllers/*"],
-      "@/services/*": ["./src/services/*"],
-      "@/middleware/*": ["./src/middleware/*"],
-      "@/routes/*": ["./src/routes/*"],
-      "@/utils/*": ["./src/utils/*"],
-      "@/data/*": ["./src/data/*"]
+      "@/todo/controllers/*": ["./src/todo/controllers/*"],
+      "@/todo/services/*": ["./src/todo/services/*"],
+      "@/todo/middleware/*": ["./src/todo/middleware/*"],
+      "@/todo/routes/*": ["./src/todo/routes/*"],
+      "@/todo/utils/*": ["./src/todo/utils/*"],
+      "@/todo/data/*": ["./src/todo/data/*"],
+      "@/registration/data/*": ["./src/registration/data/*"],
+      "@/registration/services/*": ["./src/registration/services/*"],
+      "@/registration/middleware/*": ["./src/registration/middleware/*"],
+      "@/registration/routes/*": ["./src/registration/routes/*"],
+      "@/registration/utils/*": ["./src/registration/utils/*"],
+      "@/admin/data/*": ["./src/admin/data/*"],
+      "@/admin/services/*": ["./src/admin/services/*"],
+      "@/admin/routes/*": ["./src/admin/routes/*"],
+      "@/profile/data/*": ["./src/profile/data/*"],
+      "@/profile/services/*": ["./src/profile/services/*"],
+      "@/profile/middleware/*": ["./src/profile/middleware/*"],
+      "@/profile/routes/*": ["./src/profile/routes/*"],
+      "@/src/*": ["./src/*"]
     }
   }
 }

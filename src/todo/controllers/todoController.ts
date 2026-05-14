@@ -1,5 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
-import type { ApiResponse, Todo, Statistics } from "@/types/todo.types.js";
+import type { ApiResponse } from "@/types/index.js";
+import type { Todo, Statistics } from "@/types/Todo.types.js";
+
 import {
   getTodos,
   getTodoById,
@@ -7,8 +9,8 @@ import {
   updateTodo,
   deleteTodo,
   getStats,
-} from "@/services/todoService.js";
-import { CustomError } from "@/utils/error.js";
+} from "../services/todoService.js";
+import { CustomError } from "../utils/error.js";
 
 export async function getAll(
   req: Request,
@@ -26,13 +28,9 @@ export async function getAll(
   next: NextFunction,
 ) {
   try {
-    const result = await getTodos(req.query);
+    const result = await getTodos(req.query, req.userId);
 
-    if ("error" in result) {
-      throw new Error((result as { error: string }).error);
-    }
-
-    return res.json({
+    res.json({
       success: true,
       data: result as {
         todos: Todo[];
@@ -43,6 +41,7 @@ export async function getAll(
           limit?: number;
         };
       },
+      message: null,
     });
   } catch (error) {
     next(error);
@@ -51,24 +50,17 @@ export async function getAll(
 
 export async function getById(
   req: Request<{ id: string }>,
-  res: Response<ApiResponse<Todo | { error: string }>>,
+  res: Response<ApiResponse<Todo>>,
   next: NextFunction,
 ) {
   try {
     const { id } = req.params;
-    const result = await getTodoById(id);
+    const result = await getTodoById(id, req.userId);
 
-    if (!result) {
-      throw new CustomError("Todo was not found", 404, "NotFoundError");
-    }
-
-    if ("error" in result) {
-      throw new Error((result as { error: string }).error);
-    }
-
-    return res.json({
+    res.json({
       success: true,
       data: result,
+      message: null,
     });
   } catch (error) {
     next(error);
@@ -77,19 +69,16 @@ export async function getById(
 
 export async function create(
   req: Request,
-  res: Response<ApiResponse<Todo | { error: string }>>,
+  res: Response<ApiResponse<Todo>>,
   next: NextFunction,
 ) {
   try {
-    const result = await createTodo(req.body);
+    const result = await createTodo(req.body, req.userId);
 
-    if ("error" in result) {
-      throw new Error((result as { error: string }).error);
-    }
-
-    return res.status(201).json({
+    res.status(201).json({
       success: true,
       data: result,
+      message: null,
     });
   } catch (error) {
     next(error);
@@ -98,29 +87,18 @@ export async function create(
 
 export async function update(
   req: Request<{ id: string }>,
-  res: Response,
+  res: Response<ApiResponse<Todo>>,
   next: NextFunction,
 ) {
   try {
     const { id } = req.params;
 
-    if (!Object.keys(req.body).length) {
-      throw new CustomError("No fields were provided", 400, "BadRequestError");
-    }
+    const result = await updateTodo(id, req.body, req.userId);
 
-    const result = await updateTodo(id, req.body);
-
-    if (!result) {
-      throw new CustomError("Todo was not found", 404, "NotFoundError");
-    }
-
-    if ("error" in result) {
-      throw new Error((result as { error: string }).error);
-    }
-
-    return res.json({
+    res.json({
       success: true,
       data: result,
+      message: null,
     });
   } catch (error) {
     next(error);
@@ -135,15 +113,7 @@ export async function del(
   try {
     const { id } = req.params;
 
-    const result = await deleteTodo(id);
-
-    if (!result) {
-      throw new CustomError("Todo was not found", 404, "NotFoundError");
-    }
-
-    if (typeof result === "object" && "error" in result) {
-      throw new Error((result as { error: string }).error);
-    }
+    const result = await deleteTodo(id, req.userId);
 
     return res.sendStatus(204);
   } catch (error) {
@@ -157,15 +127,12 @@ export async function getStatistics(
   next: NextFunction,
 ) {
   try {
-    const result = await getStats();
+    const result = await getStats(req.userId);
 
-    if ("error" in result) {
-      throw new CustomError(result.error, 500, "InternalServerError");
-    }
-
-    return res.json({
+    res.json({
       success: true,
       data: result,
+      message: null,
     });
   } catch (error) {
     next(error);

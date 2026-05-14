@@ -4,7 +4,7 @@ let retry = 3;
 
 export const connectToDb = (cb: (err: any) => void) => {
   mongoose
-    .connect(process.env.MONGO_DB!, { family: 4 })
+    .connect(process.env.MONGO_URI!, { family: 4 })
     .then(() => {
       console.log("MongoDB connected");
       cb(null);

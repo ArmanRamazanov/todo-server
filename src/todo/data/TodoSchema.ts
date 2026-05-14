@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import type { Todo } from "@/types/todo.types.js";
-import { Priority } from "@/types/todo.types.js";
+import type { Todo } from "../../types/Todo.types.js";
+import { Priority } from "../../types/Todo.types.js";
 
 const todoSchema = new mongoose.Schema<Todo>(
   {
@@ -11,6 +11,7 @@ const todoSchema = new mongoose.Schema<Todo>(
       enum: Object.values(Priority),
       default: Priority.Low,
     },
+    userId: { type: String },
     dueDate: { type: Date },
   },
   { timestamps: true },

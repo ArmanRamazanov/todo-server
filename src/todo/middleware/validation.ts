@@ -2,11 +2,11 @@ import type {
   PaginationQuery,
   CreateTodoInput,
   UpdateTodoInput,
-} from "@/types/todo.types.js";
+} from "../../types/Todo.types.js";
 
 import type { Request, Response } from "express";
 
-import { isValid } from "@/utils/helperFunctions/validateDate.js";
+import { isValid } from "../utils/helperFunctions/validateDate.js";
 
 import mongoose from "mongoose";
 
@@ -117,6 +117,11 @@ export function validateCreateTodo(input: CreateTodoInput): string[] {
 export function validateUpdateTodo(input: UpdateTodoInput): string[] {
   const { text, priority, completed, dueDate } = input;
   const errors: string[] = [];
+
+  if (!text && !priority && completed === undefined && !dueDate) {
+    errors.push("The fields were not provided");
+    return errors;
+  }
 
   if (text !== undefined && !text.trim().length) {
     errors.push("The text cannot be empty");

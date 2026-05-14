@@ -4,13 +4,6 @@ export enum Priority {
   High = "high",
 }
 
-export type ApiResponse<T> = {
-  success: boolean;
-  data?: T;
-  error?: Error;
-  message?: string;
-};
-
 export interface Statistics {
   total: number;
   completed: number;
@@ -19,13 +12,11 @@ export interface Statistics {
 }
 
 export interface Todo {
-  _id: string;
+  userId: string;
   text: string;
   completed: boolean;
   priority: Priority;
-  createdAt: Date;
-  dueDate?: Date;
-  updatedAt?: Date;
+  dueDate: Date | null;
 }
 
 export interface PaginationQuery {
@@ -33,16 +24,17 @@ export interface PaginationQuery {
   limit?: string;
   completed?: string;
   priority?: string;
-  search?: String;
-  sortBy?: "dueDate" | "createdAt" | undefined;
+  search?: string;
+  sortBy?: "dueDate" | "createdAt";
   sortOrder?: string;
 }
 
 export type CreateTodoInput = Omit<
   Todo,
-  "_id" | "createdAt" | "updatedAt" | "dueDate"
+  "_id" | "createdAt" | "updatedAt" | "dueDate" | "completed"
 > & {
   dueDate?: string;
+  completed?: boolean;
 };
 
 export type FilterQuery = Omit<
@@ -55,9 +47,9 @@ export type FilterQuery = Omit<
 export type SortQuery = Pick<PaginationQuery, "sortBy" | "sortOrder">;
 
 export type UpdateTodoInput = Partial<
-  Omit<Todo, "id" | "createdAt" | "updatedAt" | "dueDate"> & {
+  Omit<Todo, "_id" | "createdAt" | "updatedAt" | "userId"> & {
     dueDate?: string;
   }
 >;
 
-export type todoWithDueDate = Omit<Todo, "dueDate"> & { dueDate: string };
+// export type todoWithDueDate = Omit<Todo, "dueDate"> & { dueDate: string };
