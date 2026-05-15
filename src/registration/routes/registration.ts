@@ -21,6 +21,8 @@ import {
   LoginSanitization,
 } from "@/registration/middleware/validation.js";
 
+import { loginRateLimitMiddleware } from "@/src/rateLimiter.js";
+
 const registrationRouter = express.Router();
 
 registrationRouter.post(
@@ -101,6 +103,7 @@ registrationRouter.post(
 
 registrationRouter.post(
   "/login",
+  loginRateLimitMiddleware,
   LoginSanitization,
   async (
     req: Request,
@@ -156,9 +159,9 @@ registrationRouter.post(
   ) => {
     try {
       const accessToken = req.headers["authorization"]?.split(" ")[1];
-      console.log("cookies: ", req.cookies);
 
       const result = await logout(req.cookies.refreshToken, accessToken);
+
       if (result) {
         res.clearCookie("refreshToken", {
           httpOnly: true,

@@ -39,8 +39,6 @@ export async function getTodos(
     userId: userId,
   };
 
-  console.log(filter);
-
   const sort = {
     ...(sortBy && { [sortBy]: sortOrder === "asc" ? 1 : -1 }),
   } as Record<string, 1 | -1>;
@@ -77,9 +75,7 @@ export async function createTodo(
     createdAt: new Date(),
   };
 
-  console.log(newTodo);
-
-  return await db.addTodo(newTodo);
+  return await db.addTodo(newTodo, userId);
 }
 
 export async function updateTodo(

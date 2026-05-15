@@ -8,6 +8,7 @@ import cors from "cors";
 import morgan from "morgan";
 
 import router from "./routes/index.js";
+import { rateLimitMiddleware } from "./rateLimiter.js";
 
 import { connectToDb } from "./dbConnection.js";
 import cookieParser from "cookie-parser";
@@ -34,7 +35,7 @@ app.use(morgan(":method :url :date[clf]"));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api", router);
+app.use("/api", rateLimitMiddleware, router);
 
 //main route
 app.get("/", (req: Request, res: Response) => {

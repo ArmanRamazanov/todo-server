@@ -50,11 +50,10 @@ export function serverErrorHandler(error: unknown) {
       field: string;
     };
 
-    console.log(error);
-
     if (field) {
       return { status, details: { field, message } };
     }
+
     return { status, message };
   }
 

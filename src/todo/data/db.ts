@@ -5,6 +5,8 @@ import type {
   UpdateTodoInput,
 } from "../../types/Todo.types.js";
 import TodosModel from "@/todo/data/TodoSchema.js";
+import { UserModel } from "@/registration/data/UserSchema.js";
+import { ObjectId } from "mongodb";
 
 class TodoDatabase {
   async getTodos(
@@ -46,7 +48,7 @@ class TodoDatabase {
 
   async getTodo(id: string, userId: string): Promise<Todo> {
     try {
-      const todo = await TodosModel.findOne({ id: id, userId: userId });
+      const todo = await TodosModel.findOne({ _id: id, userId: userId });
 
       if (!todo) {
         throw {
@@ -63,9 +65,23 @@ class TodoDatabase {
     }
   }
 
-  async addTodo(todoCreate: Todo) {
+  async addTodo(todoCreate: Todo, userId: string) {
     try {
       const todo = await TodosModel.create(todoCreate);
+      const user = await UserModel.findById(userId);
+
+      if (!user) {
+        throw {
+          status: 404,
+          field: null,
+          message: "The user was not found",
+          isManual: true,
+        };
+      }
+
+      user.todos.push(new ObjectId(todo.id));
+
+      await user.save();
       return todo;
     } catch (error) {
       throw serverErrorHandler(error);
@@ -115,13 +131,27 @@ class TodoDatabase {
 
   async deleteTodo(id: string, userId: string): Promise<true> {
     try {
-      const todo = await TodosModel.findOne({ id: id, userId: userId });
+      const todo = await TodosModel.deleteOne({ _id: id, userId: userId });
 
-      if (!todo) {
+      if (!todo.acknowledged) {
         throw {
           status: 404,
           field: null,
           message: "The todo was not found",
+          isManual: true,
+        };
+      }
+
+      const result = await UserModel.updateOne(
+        { _id: userId },
+        { $pull: { todos: id } },
+      );
+
+      if (!result.acknowledged) {
+        throw {
+          status: 404,
+          field: null,
+          message: "The user was not found",
           isManual: true,
         };
       }

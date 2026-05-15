@@ -108,13 +108,14 @@ export async function logout(
   try {
     const refreshTokenPayload = jwt.verify(
       refreshToken,
-      process.env.REFRESH_TOKEN!,
+      process.env.REFRESH_TOKEN_SECRET!,
     ) as JwtPayload;
+
     await redis.del(`refreshToken:jti:${refreshTokenPayload.jti}`);
 
     const accessTokenPayload = jwt.verify(
       accessToken ?? "",
-      process.env.ACCESS_TOKEN!,
+      process.env.ACCESS_TOKEN_SECRET!,
     ) as JwtPayload;
     const remainingTime =
       accessTokenPayload.exp! - Math.floor(Date.now() / 1000);

@@ -1,5 +1,6 @@
 import { type PopulatedDoc } from "mongoose";
 import { type Todo } from "./Todo.types.js";
+import mongoose from "mongoose";
 
 export enum Role {
   Admin = "admin",
@@ -8,7 +9,7 @@ export enum Role {
 
 export enum Status {
   Active = "active",
-  Inactive = "inactive"
+  Inactive = "inactive",
 }
 
 export interface User {
@@ -16,7 +17,7 @@ export interface User {
   password: string;
   email: string;
   role: Role;
-  todos: PopulatedDoc<Todo>[];
+  todos: PopulatedDoc<Todo>[] | mongoose.Types.ObjectId[];
   profile: {
     firstName: string;
     lastName: string | null;

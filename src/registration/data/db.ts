@@ -206,7 +206,7 @@ class UserDB {
         throw {
           status: 400,
           field: null,
-          messsage: "The email or password is incorrect",
+          message: "The email or password is incorrect",
           isManual: true,
         };
       }

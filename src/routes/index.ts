@@ -1,3 +1,8 @@
+import {
+  loginRateLimitMiddleware,
+  rateLimitMiddleware,
+} from "../rateLimiter.js";
+
 import express from "express";
 
 const router = express.Router();
