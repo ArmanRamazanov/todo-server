@@ -1,4 +1,4 @@
-import type { Role, Status } from "./User.types.js";
+import type { Role, Status  } from "./User.types.js";
 
 export interface userFilterQuery {
   page?: string;

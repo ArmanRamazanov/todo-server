@@ -6,6 +6,11 @@ export enum Role {
   User = "user",
 }
 
+export enum Status {
+  Active = "active",
+  Inactive = "inactive"
+}
+
 export interface User {
   username: string;
   password: string;
